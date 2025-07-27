@@ -137,20 +137,25 @@
 	<script src="assets/js/ads.js" type="application/javascript"></script>
 	
 	<script>
-		document.getElementById('base64-form').addEventListener('submit', function (e) {
-			e.preventDefault();
-			const method = document.getElementById('method').value;
-			const message = document.getElementById('message').value;
-			if (method === 'ENCODE') {
-			const result = btoa(message);
-			} else if (method === 'DECODE') {
-			const result = atob(message);
-			} else {
-			const result = 'Error: Method invalid (ENCODE/DECODE)';
-			}
-			document.getElementById('result').textContent = result;
-		});
-	</script>
+    document.getElementById('base64-form').addEventListener('submit', function (e) {
+	    e.preventDefault();
+	    const method = document.getElementById('method').value;
+	    const message = document.getElementById('message').value.trim();
+	    let result = '';
+	    try {
+	        if (method === 'ENCODE') {
+	            result = btoa(unescape(encodeURIComponent(message)));
+	        } else if (method === 'DECODE') {
+	            result = decodeURIComponent(escape(atob(message)));
+	        } else {
+	            result = 'Error: Method tidak dikenali.';
+	        }
+	    } catch (err) {
+		    result = 'Error: ' + err.message;
+	    }
+	    document.getElementById('result').textContent = result;
+	});
+    </script>
 
 </body>
 </html>
