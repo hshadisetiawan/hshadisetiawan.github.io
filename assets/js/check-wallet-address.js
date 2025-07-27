@@ -1,48 +1,62 @@
-var Mnemonic
-var Password
-var WalletPrivateKey
-var WalletAddress
-var ChainID
-var NodeURL
+function ShowSetPassword() {
+  const el = document.getElementById('SetPassword');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
 
-
+function ShowPassword() {
+  const el = document.getElementById('GetPassword');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
 
 function CheckWalletAddress() {
-	document.getElementById('WalletAddressResult').style.display = 'block'
-	document.getElementById('PrintWalletAddressResult').style.display = 'block'
-	document.getElementById('EnterToCheckWalletAddress').style.display = 'none'
-	
-	// Mnemonic
-	SetMnemonic = document.getElementById('SetMnemonic')
-	SetMnemonic = SetMnemonic.value
-	GetMnemonic = SetMnemonic
-	document.getElementById('GetMnemonic').value = GetMnemonic
-	
-	// Password
-	SetPassword = document.getElementById('SetPassword')
-	SetPassword = SetPassword.value
-	GetPassword = SetPassword
-	document.getElementById('GetPassword').value = GetPassword
-	
-	const EthersUtilsHDNodeFromMnemonicUsingPassword = ethers.utils.HDNode.fromMnemonic(SetMnemonic,SetPassword)
-	
-	const DerivedNode = EthersUtilsHDNodeFromMnemonicUsingPassword.derivePath("m/44'/60'/0'/0/0")
-	document.getElementById('DerivedNodePath').value = DerivedNode.path
-	
-	// Generate multiple wallets from the HDNode instance
-	var SetNumberOfWalletAddresses = document.getElementById('SetNumberOfWalletAddresses')
-	SetNumberOfWalletAddresses = SetNumberOfWalletAddresses.value
-	var NumberOfWalletAddresses
-	if (SetNumberOfWalletAddresses >= 1 && SetNumberOfWalletAddresses <= 10) {
-		NumberOfWalletAddresses = SetNumberOfWalletAddresses
-	} else {
-		NumberOfWalletAddresses = 1
-	}
-	const MultipleWallets = []
-	for (let i = 0; i < NumberOfWalletAddresses; i++) {
-		const path = "m/44'/60'/0'/0/" + i
-		const GetWallet = EthersUtilsHDNodeFromMnemonicUsingPassword.derivePath(path)
-		MultipleWallets.push(GetWallet)
-		document.getElementById('MultipleWallets').innerHTML += '<tr><th scope="row">'+i+'</th><td>'+GetWallet.privateKey+'</td><td>'+GetWallet.publicKey+'</td><td>'+GetWallet.address+'</td></tr>'
-	}
+  const mnemonic = document.getElementById('SetMnemonic').value.trim();
+  const password = document.getElementById('SetPassword').value.trim();
+  const countInput = parseInt(document.getElementById('SetNumberOfWalletAddresses').value);
+  const walletTable = document.getElementById('MultipleWallets');
+
+  if (!mnemonic || mnemonic.split(' ').length < 12) {
+    alert("Mnemonic tidak valid atau kurang dari 12 kata.");
+    return;
+  }
+
+  // Tampilkan hasil, sembunyikan form input
+  document.getElementById('WalletAddressResult').style.display = 'block';
+  document.getElementById('EnterToCheckWalletAddress').style.display = 'none';
+  walletTable.innerHTML = ''; // Kosongkan tabel jika ada data sebelumnya
+
+  // Tampilkan ulang mnemonic dan password yang dimasukkan
+  document.getElementById('GetMnemonic').value = mnemonic;
+  document.getElementById('GetPassword').value = password;
+
+  try {
+    // Generate HDNode dari mnemonic + password
+    const hdNode = ethers.utils.HDNode.fromMnemonic(mnemonic, password);
+
+    // Default path pertama
+    const path0 = "m/44'/60'/0'/0/0";
+    const derived0 = hdNode.derivePath(path0);
+    document.getElementById('DerivedNodePath').value = derived0.path;
+
+    // Jumlah wallet
+    const walletCount = (countInput >= 1 && countInput <= 250) ? countInput : 1;
+
+    for (let i = 0; i < walletCount; i++) {
+      const path = `m/44'/60'/0'/0/${i}`;
+      const wallet = hdNode.derivePath(path);
+
+      // Tambahkan ke tabel
+      walletTable.innerHTML += `
+        <tr>
+          <td>${i}</td>
+          <td>${wallet.privateKey}</td>
+          <td>${wallet.publicKey}</td>
+          <td>${wallet.address}</td>
+        </tr>
+      `;
+    }
+
+  } catch (err) {
+    alert("Gagal memproses mnemonic atau password. Periksa kembali input Anda.");
+    console.error(err);
+  }
 }
