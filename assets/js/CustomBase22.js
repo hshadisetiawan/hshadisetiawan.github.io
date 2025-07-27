@@ -4,7 +4,7 @@ class CustomBase22 {
         this.BASE = BigInt(this.ALPHABET.length);
     }
 
-    CB58(method, message) {
+    CB22(method, message) {
         if (!message || message.length === 0) {
             return 'Error Base22';
         }
