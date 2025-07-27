@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cek Alamat Dompet - Hadi Setiawan</title>
+  <meta name="description" content="Cek alamat dompet dari mnemonic dan kata sandi menggunakan alat sumber terbuka ini." />
+  <meta name="author" content="Hadi Setiawan" />
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.13.5/ethers.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+  <style>
+    body {
+      font-family: Lato, sans-serif;
+      background-color: silver;
+      font-size: clamp(16px, 5vw, 18px);
+      padding-bottom: 7rem;
+    }
+    h1, h2 {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container p-5 text-center bg-white">
+    <h1 onclick="Home_Page()">Hadi Setiawan</h1>
+  </div>
+
+  <div id="EnterToCheckWalletAddress" class="container mt-5 bg-white p-4 rounded shadow">
+    <h2 class="text-center mb-4">Cek Alamat Dompet</h2>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Mnemonic</span>
+      <input type="text" class="form-control" id="SetMnemonic" placeholder="contoh: apple mango zebra ..." />
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Kata Sandi</span>
+      <input type="password" class="form-control" id="SetPassword" />
+    </div>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="ShowSetPassword" onclick="ShowSetPassword()" />
+      <label class="form-check-label" for="ShowSetPassword">Lihat Kata Sandi</label>
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Jumlah Alamat Dompet</span>
+      <input type="number" class="form-control" id="SetNumberOfWalletAddresses" min="1" max="250" value="1" />
+    </div>
+
+    <button class="btn btn-success w-100" onclick="CheckWalletAddress()">Cek Dompet</button>
+  </div>
+
+  <div id="WalletAddressResult" class="container mt-5 bg-white p-4 rounded shadow" style="display:none;">
+    <h2>Hasil Cek Dompet</h2>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Mnemonic</span>
+      <input type="text" class="form-control" id="GetMnemonic" readonly />
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Kata Sandi</span>
+      <input type="password" class="form-control" id="GetPassword" readonly />
+    </div>
+
+    <div class="form-check mb-3">
+      <input class="form-check-input" type="checkbox" id="ShowPassword" onclick="ShowPassword()" />
+      <label class="form-check-label" for="ShowPassword">Lihat Kata Sandi</label>
+    </div>
+
+    <div class="input-group mb-3">
+      <span class="input-group-text">Path</span>
+      <input type="text" class="form-control" id="DerivedNodePath" readonly />
+    </div>
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Private Key</th>
+            <th>Public Key</th>
+            <th>Address</th>
+          </tr>
+        </thead>
+        <tbody id="MultipleWallets"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    function ShowSetPassword() {
+      const el = document.getElementById('SetPassword');
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+
+    function ShowPassword() {
+      const el = document.getElementById('GetPassword');
+      el.type = el.type === 'password' ? 'text' : 'password';
+    }
+
+    function CheckWalletAddress() {
+      const mnemonic = document.getElementById('SetMnemonic').value.trim();
+      const password = document.getElementById('SetPassword').value;
+      const number = parseInt(document.getElementById('SetNumberOfWalletAddresses').value);
+      const outputDiv = document.getElementById('WalletAddressResult');
+      const inputDiv = document.getElementById('EnterToCheckWalletAddress');
+      const table = document.getElementById('MultipleWallets');
+
+      if (!mnemonic || mnemonic.split(' ').length < 12) {
+        alert('Mnemonic tidak valid atau kurang dari 12 kata.');
+        return;
+      }
+
+      outputDiv.style.display = 'block';
+      inputDiv.style.display = 'none';
+      table.innerHTML = '';
+
+      document.getElementById('GetMnemonic').value = mnemonic;
+      document.getElementById('GetPassword').value = password;
+
+      try {
+        const root = ethers.utils.HDNode.fromMnemonic(mnemonic, password);
+        const path0 = "m/44'/60'/0'/0/0";
+        document.getElementById('DerivedNodePath').value = path0;
+
+        let count = isNaN(number) || number < 1 || number > 250 ? 1 : number;
+
+        for (let i = 0; i < count; i++) {
+          const path = `m/44'/60'/0'/0/${i}`;
+          const wallet = root.derivePath(path);
+          table.innerHTML += `
+            <tr>
+              <td>${i}</td>
+              <td>${wallet.privateKey}</td>
+              <td>${wallet.publicKey}</td>
+              <td>${wallet.address}</td>
+            </tr>`;
+        }
+      } catch (error) {
+        alert('Mnemonic atau password salah. Gagal menghasilkan dompet.');
+        console.error(error);
+      }
+    }
+  </script>
+</body>
+</html>
