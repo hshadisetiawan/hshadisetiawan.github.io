@@ -141,9 +141,6 @@
 			const base64Link = btoa(originalLink);
 			const HideLink = `${window.location.origin}/hidelink.html?hidelink=${base64Link}`;
 			document.getElementById('result').innerHTML = `
-			<div class="alert alert-success" role="alert">
-			HideLink Anda: <a href="${HideLink}" target="_blank">${HideLink}</a>
-			</div>
 			<textarea readonly id="hidelinkresult" class="form-control bg-light p-3 rounded border" rows="3" required>${HideLink}</textarea>
 				<button id="copyResult" class="btn btn-outline-secondary btn-sm mt-2">
     <i class="bi bi-clipboard"></i> Salin Hasil
@@ -192,7 +189,7 @@
     
     <script>
 	    document.getElementById('copyResult').addEventListener('click', function () {
-	        const text = document.getElementById(hidelink'result').textContent;
+	        const text = document.getElementById('hidelinkresult').textContent;
 	        if (!text.trim()) {
 	            alert("Tidak ada hasil untuk disalin.");
 	            return;
