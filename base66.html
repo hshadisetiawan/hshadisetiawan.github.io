@@ -112,7 +112,10 @@
 				</form>
 				<hr>
 				<h5>Result:</h5>
-				<pre id="result" class="bg-light p-3 rounded border"></pre>
+				<textarea readonly id="result" class="form-control bg-light p-3 rounded border" rows="3" required></textarea>
+				<button id="copyResult" class="btn btn-outline-secondary btn-sm mt-2">
+    <i class="bi bi-clipboard"></i> Salin Hasil
+</button>
 			</div>
 		</div>
 	</div>
@@ -155,6 +158,24 @@
 			const result = base66.CB66(method, message);
 			document.getElementById('result').textContent = result;
 		});
+	</script>
+	
+	<script>
+	    document.getElementById('copyResult').addEventListener('click', function () {
+	        const text = document.getElementById('result').textContent;
+	        if (!text.trim()) {
+	            alert("Tidak ada hasil untuk disalin.");
+	            return;
+	        }
+	        navigator.clipboard.writeText(text)
+	        .then(() => {
+	            alert("Hasil berhasil disalin ke clipboard!");
+	        })
+	        .catch((err) => {
+	            console.error("Gagal menyalin:", err);
+	            alert("Gagal menyalin ke clipboard.");
+	        });
+	    });
 	</script>
 
 </body>
