@@ -144,6 +144,10 @@
 			<div class="alert alert-success" role="alert">
 			HideLink Anda: <a href="${HideLink}" target="_blank">${HideLink}</a>
 			</div>
+			<textarea readonly id="hidelinkresult" class="form-control bg-light p-3 rounded border" rows="3" required>${HideLink}</textarea>
+				<button id="copyResult" class="btn btn-outline-secondary btn-sm mt-2">
+    <i class="bi bi-clipboard"></i> Salin Hasil
+</button>
 			`;
 		});
 	</script>
@@ -185,6 +189,24 @@
 		window.location.href = originalLink; // Redirect ke link asli
 		}
     </script>
+    
+    <script>
+	    document.getElementById('copyResult').addEventListener('click', function () {
+	        const text = document.getElementById(hidelink'result').textContent;
+	        if (!text.trim()) {
+	            alert("Tidak ada hasil untuk disalin.");
+	            return;
+	        }
+	        navigator.clipboard.writeText(text)
+	        .then(() => {
+	            alert("Hasil berhasil disalin ke clipboard!");
+	        })
+	        .catch((err) => {
+	            console.error("Gagal menyalin:", err);
+	            alert("Gagal menyalin ke clipboard.");
+	        });
+	    });
+	</script>
 
 </body>
 </html>
